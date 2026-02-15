@@ -67,6 +67,32 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="openSettings()" class="p-3 glass rounded-xl hover:bg-zinc-800 transition-colors">
+                <!-- XP/Level/Coins Display -->
+                <div class="flex items-center gap-4 mr-4">
+                    <!-- Level Badge -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 rounded-xl border border-violet-500/30">
+                        <span class="text-xs text-zinc-400">LEVEL</span>
+                        <span id="levelDisplay" class="text-xl font-bold text-violet-400">1</span>
+                        <span id="levelNameDisplay" class="text-xs text-zinc-500">Bronze</span>
+                    </div>
+                    <!-- XP Progress -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-zinc-400">XP</span>
+                            <span id="xpDisplay" class="text-sm font-bold text-white">0</span>
+                            <span class="text-xs text-zinc-500">/</span>
+                            <span id="nextLevelXP" class="text-xs text-zinc-500">100</span>
+                        </div>
+                        <div class="w-32 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                            <div id="xpProgressBar" class="h-full bg-gradient-to-r from-violet-600 to-violet-400 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Coins -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 rounded-xl border border-yellow-500/30">
+                        <span class="text-xl">💰</span>
+                        <span id="coinsDisplay" class="text-lg font-bold text-yellow-400">0</span>
+                    </div>
+                </div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
                 <button onclick="toggleModal('habitModal', true)" class="px-6 py-3 violet-gradient rounded-xl font-bold shadow-lg shadow-violet-500/20 hover:scale-105 transition-transform">+ New Habit</button>
@@ -499,6 +525,23 @@
             document.getElementById('statTotalStreaks').innerText = totalStreaks;
             document.getElementById('statBestHabit').innerText = bestHabit;
             document.getElementById('statFocusTime').innerText = state.stats.totalFocusMinutes;
+
+        // Update XP/Level/Coins displays
+        document.getElementById('levelDisplay').innerText = state.level;
+        document.getElementById('levelNameDisplay').innerText = state.levelName;
+        document.getElementById('xpDisplay').innerText = state.xp;
+        document.getElementById('coinsDisplay').innerText = state.coins;
+        
+        // Calculate next level XP and progress
+        const nextLevel = state.level + 1;
+        const nextLevelThreshold = LEVEL_THRESHOLDS[nextLevel]?.xpRequired || 1000;
+        const currentLevelThreshold = LEVEL_THRESHOLDS[state.level]?.xpRequired || 0;
+        const xpIntoCurrentLevel = state.xp - currentLevelThreshold;
+        const xpNeededForNext = nextLevelThreshold - currentLevelThreshold;
+        const progressPercent = Math.min((xpIntoCurrentLevel / xpNeededForNext) * 100, 100);
+        
+        document.getElementById('nextLevelXP').innerText = nextLevelThreshold;
+        document.getElementById('xpProgressBar').style.width = `${progressPercent}%`;
         }
 
         function renderWeeklyChart() {
