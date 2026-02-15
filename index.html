@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus-Flow - Build Consistent Study Habits</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #8B5CF6;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(139, 92, 246, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: #8B5CF6;
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .habit-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .habit-item:hover {
+      background: rgba(139, 92, 246, 0.05);
+    }
+
+    .habit-checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #334155;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .habit-checkbox.completed {
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      border-color: #06B6D4;
+    }
+
+    .habit-name {
+      flex: 1;
+      font-size: 1rem;
+      color: #e2e8f0;
+    }
+
+    .habit-item.completed .habit-name {
+      color: #64748b;
+      text-decoration: line-through;
+    }
+
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .progress-day {
+      aspect-ratio: 1;
+      background: #1e293b;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .progress-day.active {
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+    }
+
+    .ai-widget {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .ai-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      border-radius: 50%;
+    }
+
+    .ai-title {
+      font-weight: 600;
+      color: #8B5CF6;
+    }
+
+    .ai-body {
+      padding: 1rem;
+      background: rgba(15, 15, 15, 0.5);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .ai-input {
+      width: 100%;
+      background: rgba(15, 15, 15, 0.5);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .ai-input:focus {
+      border-color: #8B5CF6;
+    }
+
+    .ai-input::placeholder {
+      color: #64748b;
+    }
+
+    @media (max-width: 500px) {
+      .ai-widget {
+        width: calc(100% - 40px);
+        left: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>FOCUS-FLOW</h1>
+      <div class="tagline">ARCHITECT AT-</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Today's Habits</div>
+        <div id="habits-list">
+          <div class="habit-item completed" onclick="toggleHabit(this)">
+            <div class="habit-checkbox completed"></div>
+            <div class="habit-name">Deep Work (2hrs)</div>
+          </div>
+          <div class="habit-item completed" onclick="toggleHabit(this)">
+            <div class="habit-checkbox completed"></div>
+            <div class="habit-name">Gym</div>
+          </div>
+          <div class="habit-item completed" onclick="toggleHabit(this)">
+            <div class="habit-checkbox completed"></div>
+            <div class="habit-name">Study Chemistry</div>
+          </div>
+          <div class="habit-item" onclick="toggleHabit(this)">
+            <div class="habit-checkbox"></div>
+            <div class="habit-name">Read 30min</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Weekly Progress</div>
+        <div class="progress-grid">
+          <div class="progress-day"></div>
+          <div class="progress-day"></div>
+          <div class="progress-day"></div>
+          <div class="progress-day"></div>
+          <div class="progress-day active"></div>
+          <div class="progress-day"></div>
+          <div class="progress-day"></div>
+        </div>
+      </div>
+
+      <div class="card ai-widget">
+        <div class="ai-header">
+          <div class="ai-icon"></div>
+          <div class="ai-title">ARCHITECT AI</div>
+        </div>
+        <div class="ai-body">3 days strong. Don't break the streak now.</div>
+        <input type="text" class="ai-input" placeholder="Message the Architect...">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleHabit(element) {
+      element.classList.toggle('completed');
+      const checkbox = element.querySelector('.habit-checkbox');
+      checkbox.classList.toggle('completed');
+      
+      const completedCount = document.querySelectorAll('.habit-item.completed').length;
+      const totalHabits = document.querySelectorAll('.habit-item').length;
+      
+      if (completedCount >= 3) {
+        updateAIMessage(completedCount);
+      }
+    }
+
+    function updateAIMessage(streak) {
+      const aiBody = document.querySelector('.ai-body');
+      const responses = [
+        `${streak} completed, 1 to go. Finish strong.`,
+        `The streak is watching. Don't let it down.`,
+        `${streak} days strong. Don't break the streak now.`,
+        `Consistency over perfection. Keep going.`
+      ];
+      aiBody.textContent = responses[Math.floor(Math.random() * responses.length)];
+      aiBody.target.value = "";
+    }
+
+    document.querySelector('.ai-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && this.value.trim()) {
+        const responses = [
+          "Stay consistent. That's all it takes.",
+          "Small wins compound. Keep showing up.",
+          "Don't think. Just do it.",
+          "The streak doesn't negotiate.",
+          "Discipline beats motivation."
+        ];
+        document.querySelector('.ai-body').textContent = responses[Math.floor(Math.random() * responses.length)];
+        this.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
