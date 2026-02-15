@@ -189,6 +189,14 @@
     xp: 0,
     level: 1,
     levelName: 'Bronze',
+    coins: 0,
+    badges: [],
+    dailyLoginStreak: 0,
+    lastLoginDate: null,
+    dailyRewardClaimed: false,
+    lootBoxes: { common: 0, rare: 0, legendary: 0 },
+    totalHabitsCompleted: 0,
+    currentDailyChallenge: null,
             settings: { soundEnabled: true, onboardingComplete: false },
             lastDate: new Date().toLocaleDateString()
         };
@@ -206,6 +214,7 @@
             if (savedState) {
                 state = JSON.parse(savedState);
                 checkDailyReset();
+            checkDailyLogin();
             } else {
                 document.getElementById('onboardingModal').classList.remove('hidden');
             }
@@ -255,6 +264,107 @@
         });
     }
 
+    // --- REWARDS & GAMIFICATION SYSTEMS ---
+    const BADGES = {
+        FIRST_STEPS: { id: 'first_steps', name: 'First Steps', desc: 'Complete your first habit' },
+        WEEK_WARRIOR: { id: 'week_warrior', name: 'Week Warrior', desc: '7-day streak' },
+        STUDY_GRIND: { id: 'study_grind', name: 'Study Grind', desc: 'Complete 50 habits' },
+        NIGHT_OWL: { id: 'night_owl', name: 'Night Owl', desc: 'Complete habit after 10 PM' },
+        EARLY_BIRD: { id: 'early_bird', name: 'Early Bird', desc: 'Complete habit before 7 AM' },
+        POMODORO_MASTER: { id: 'pomodoro_master', name: 'Pomodoro Master', desc: '25 focus sessions' },
+        DIAMOND_MIND: { id: 'diamond_mind', name: 'Diamond Mind', desc: 'Reach Diamond level' }
+    };
+
+    function checkBadges() {
+        const earnedBadges = [];
+        
+        // First Steps
+        if (state.totalHabitsCompleted >= 1 && !state.badges.includes('first_steps')) {
+            earnedBadges.push(BADGES.FIRST_STEPS);
+        }
+        
+        // Week Warrior - check if any habit has 7+ day streak
+        const hasWeekStreak = state.habits.some(h => h.streak >= 7);
+        if (hasWeekStreak && !state.badges.includes('week_warrior')) {
+            earnedBadges.push(BADGES.WEEK_WARRIOR);
+        }
+        
+        // Study Grind
+        if (state.totalHabitsCompleted >= 50 && !state.badges.includes('study_grind')) {
+            earnedBadges.push(BADGES.STUDY_GRIND);
+        }
+        
+        // Pomodoro Master
+        if (state.stats.focusSessions >= 25 && !state.badges.includes('pomodoro_master')) {
+            earnedBadges.push(BADGES.POMODORO_MASTER);
+        }
+        
+        // Diamond Mind
+        if (state.level >= 5 && !state.badges.includes('diamond_mind')) {
+            earnedBadges.push(BADGES.DIAMOND_MIND);
+        }
+        
+        // Award new badges
+        earnedBadges.forEach(badge => {
+            state.badges.push(badge.id);
+            showBadgeNotification(badge);
+        });
+    }
+
+    function showBadgeNotification(badge) {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
+
+    const DAILY_CHALLENGES = [
+        { id: 'triple_threat', name: 'Triple Threat', desc: 'Complete 3 habits today', xpReward: 50, check: () => state.habits.filter(h => h.completedToday).length >= 3 },
+        { id: 'perfect_day', name: 'Perfect Day', desc: '100% completion rate', xpReward: 100, check: () => state.habits.length > 0 && state.habits.every(h => h.completedToday) }
+    ];
+
+    function checkDailyChallenge() {
+        if (!state.currentDailyChallenge) {
+            state.currentDailyChallenge = DAILY_CHALLENGES[Math.floor(Math.random() * DAILY_CHALLENGES.length)];
+        }
+        
+        const challenge = state.currentDailyChallenge;
+        if (challenge && challenge.check && challenge.check()) {
+            awardXP(challenge.xpReward);
+            state.currentDailyChallenge = null; // Reset for next day
+            showBadgeNotification({ name: challenge.name + ' Complete!', desc: `+${challenge.xpReward} XP` });
+        }
+    }
+
+    function checkDailyLogin() {
+        const today = new Date().toLocaleDateString();
+        
+        if (state.lastLoginDate !== today) {
+            state.lastLoginDate = today;
+            state.dailyLoginStreak++;
+            state.dailyRewardClaimed = false;
+            
+            // Award daily login reward
+            const rewards = [20, 30, 50, 50, 100, 75, 200]; // Days 1-7
+            const dayIndex = (state.dailyLoginStreak - 1) % 7;
+            const xpReward = rewards[dayIndex];
+            
+            awardXP(xpReward);
+            state.coins += Math.floor(xpReward / 2); // Half XP amount in coins
+            
+            if (dayIndex === 6) { // Day 7 - Legendary reward
+                state.lootBoxes.legendary++;
+            } else if (dayIndex === 4) { // Day 5 - Rare
+                state.lootBoxes.rare++;
+            } else if (dayIndex === 2) { // Day 3 - Common
+                state.lootBoxes.common++;
+            }
+            
+            saveData();
+        }
+    }
+
         function saveData() {
             localStorage.setItem('focusFlow_data', JSON.stringify(state));
             updateStats();
@@ -295,6 +405,10 @@
                 if (habit.streak > habit.maxStreak) habit.maxStreak = habit.streak;
                 habit.history.push(today);
                 awardXP(10); // Award 10 XP for completing a habit
+                state.coins += 10; // Award 10 coins per habit
+                state.totalHabitsCompleted++;
+                checkBadges();
+                checkDailyChallenge();
                 
                 // Visual feedback
                 if ([7, 30, 100].includes(habit.streak)) triggerConfetti();
