@@ -186,6 +186,9 @@
         let state = {
             habits: [],
             stats: { focusSessions: 0, totalFocusMinutes: 0 },
+    xp: 0,
+    level: 1,
+    levelName: 'Bronze',
             settings: { soundEnabled: true, onboardingComplete: false },
             lastDate: new Date().toLocaleDateString()
         };
@@ -212,6 +215,45 @@
             renderWeeklyChart();
             document.getElementById('quoteDisplay').innerText = `"${QUOTES[Math.floor(Math.random() * QUOTES.length)]}"`;
         }
+
+
+    // --- XP & LEVELING SYSTEM ---
+    const LEVEL_THRESHOLDS = {
+        1: { name: 'Bronze', xpRequired: 0 },
+        2: { name: 'Silver', xpRequired: 100 },
+        3: { name: 'Gold', xpRequired: 300 },
+        4: { name: 'Platinum', xpRequired: 600 },
+        5: { name: 'Diamond', xpRequired: 1000 }
+    };
+
+    function awardXP(amount) {
+        state.xp += amount;
+        checkLevelUp();
+        saveData();
+        updateStats();
+    }
+
+    function checkLevelUp() {
+        const levels = Object.keys(LEVEL_THRESHOLDS).map(Number).sort((a, b) => b - a);
+        for (let level of levels) {
+            if (state.xp >= LEVEL_THRESHOLDS[level].xpRequired) {
+                if (state.level < level) {
+                    state.level = level;
+                    state.levelName = LEVEL_THRESHOLDS[level].name;
+                    showLevelUpCelebration();
+                }
+                break;
+            }
+        }
+    }
+
+    function showLevelUpCelebration() {
+        confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
 
         function saveData() {
             localStorage.setItem('focusFlow_data', JSON.stringify(state));
