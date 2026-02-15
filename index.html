@@ -1,294 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Focus-Flow - Build Consistent Study Habits</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f0f0f;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 3rem;
-      padding: 2rem 0;
-      border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-    }
-
-    h1 {
-      font-size: 3rem;
-      font-weight: bold;
-      background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
-    }
-
-    .tagline {
-      font-size: 0.95rem;
-      color: #8B5CF6;
-      font-weight: bold;
-      letter-spacing: 0.05em;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .card {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 2rem;
-      border: 1px solid rgba(139, 92, 246, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .card:hover {
-      border-color: #8B5CF6;
-      transform: translateY(-2px);
-    }
-
-    .card-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #64748b;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-    }
-
-    .habit-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .habit-item:hover {
-      background: rgba(139, 92, 246, 0.05);
-    }
-
-    .habit-checkbox {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid #334155;
-      transition: all 0.3s;
-      flex-shrink: 0;
-    }
-
-    .habit-checkbox.completed {
-      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-      border-color: #06B6D4;
-    }
-
-    .habit-name {
-      flex: 1;
-      font-size: 1rem;
-      color: #e2e8f0;
-    }
-
-    .habit-item.completed .habit-name {
-      color: #64748b;
-      text-decoration: line-through;
-    }
-
-    .progress-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .progress-day {
-      aspect-ratio: 1;
-      background: #1e293b;
-      border-radius: 8px;
-      transition: all 0.3s;
-    }
-
-    .progress-day.active {
-      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-    }
-
-    .ai-widget {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
-      border: 1px solid rgba(139, 92, 246, 0.3);
-    }
-
-    .ai-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .ai-icon {
-      width: 24px;
-      height: 24px;
-      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-      border-radius: 50%;
-    }
-
-    .ai-title {
-      font-weight: 600;
-      color: #8B5CF6;
-    }
-
-    .ai-body {
-      padding: 1rem;
-      background: rgba(15, 15, 15, 0.5);
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-
-    .ai-input {
-      width: 100%;
-      background: rgba(15, 15, 15, 0.5);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 8px;
-      padding: 0.75rem;
-      color: #e2e8f0;
-      font-size: 0.85rem;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    .ai-input:focus {
-      border-color: #8B5CF6;
-    }
-
-    .ai-input::placeholder {
-      color: #64748b;
-    }
-
-    @media (max-width: 500px) {
-      .ai-widget {
-        width: calc(100% - 40px);
-        left: 20px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus-Flow | Productive Noir</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --card-dark: #18181b;
+            --electric-violet: #8b5cf6;
+            --violet-glow: rgba(139, 92, 246, 0.3);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f4f4f5;
+            overflow-x: hidden;
+        }
+        .violet-gradient {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 20px var(--violet-glow);
+            border-color: var(--electric-violet);
+        }
+        .glass {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 10px;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide { animation: slideIn 0.3s ease-out forwards; }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>FOCUS-FLOW</h1>
-      <div class="tagline">ARCHITECT AT-</div>
-    </header>
+<body class="p-4 md:p-8">
 
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Today's Habits</div>
-        <div id="habits-list">
-          <div class="habit-item completed" onclick="toggleHabit(this)">
-            <div class="habit-checkbox completed"></div>
-            <div class="habit-name">Deep Work (2hrs)</div>
-          </div>
-          <div class="habit-item completed" onclick="toggleHabit(this)">
-            <div class="habit-checkbox completed"></div>
-            <div class="habit-name">Gym</div>
-          </div>
-          <div class="habit-item completed" onclick="toggleHabit(this)">
-            <div class="habit-checkbox completed"></div>
-            <div class="habit-name">Study Chemistry</div>
-          </div>
-          <div class="habit-item" onclick="toggleHabit(this)">
-            <div class="habit-checkbox"></div>
-            <div class="habit-name">Read 30min</div>
-          </div>
+    <div id="onboardingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div class="glass max-w-md w-full p-8 rounded-3xl text-center">
+            <div class="w-16 h-16 violet-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="text-white w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Welcome to Focus-Flow</h2>
+            <p class="text-zinc-400 mb-8">Master your routine with high-performance tracking and deep focus tools.</p>
+            <button onclick="closeOnboarding()" class="w-full py-4 violet-gradient rounded-xl font-bold hover:opacity-90 transition-all">Start My Journey</button>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Weekly Progress</div>
-        <div class="progress-grid">
-          <div class="progress-day"></div>
-          <div class="progress-day"></div>
-          <div class="progress-day"></div>
-          <div class="progress-day"></div>
-          <div class="progress-day active"></div>
-          <div class="progress-day"></div>
-          <div class="progress-day"></div>
-        </div>
-      </div>
-
-      <div class="card ai-widget">
-        <div class="ai-header">
-          <div class="ai-icon"></div>
-          <div class="ai-title">ARCHITECT AI</div>
-        </div>
-        <div class="ai-body">3 days strong. Don't break the streak now.</div>
-        <input type="text" class="ai-input" placeholder="Message the Architect...">
-      </div>
     </div>
-  </div>
 
-  <script>
-    function toggleHabit(element) {
-      element.classList.toggle('completed');
-      const checkbox = element.querySelector('.habit-checkbox');
-      checkbox.classList.toggle('completed');
-      
-      const completedCount = document.querySelectorAll('.habit-item.completed').length;
-      const totalHabits = document.querySelectorAll('.habit-item').length;
-      
-      if (completedCount >= 3) {
-        updateAIMessage(completedCount);
-      }
-    }
+    <main class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-4xl font-black tracking-tighter text-white">FOCUS<span class="text-violet-500">FLOW</span></h1>
+                <p id="quoteDisplay" class="text-zinc-500 italic mt-1 text-sm">"The secret of your future is hidden in your daily routine."</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openSettings()" class="p-3 glass rounded-xl hover:bg-zinc-800 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </button>
+                <button onclick="toggleModal('habitModal', true)" class="px-6 py-3 violet-gradient rounded-xl font-bold shadow-lg shadow-violet-500/20 hover:scale-105 transition-transform">+ New Habit</button>
+            </div>
+        </header>
 
-    function updateAIMessage(streak) {
-      const aiBody = document.querySelector('.ai-body');
-      const responses = [
-        `${streak} completed, 1 to go. Finish strong.`,
-        `The streak is watching. Don't let it down.`,
-        `${streak} days strong. Don't break the streak now.`,
-        `Consistency over perfection. Keep going.`
-      ];
-      aiBody.textContent = responses[Math.floor(Math.random() * responses.length)];
-      aiBody.target.value = "";
-    }
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-8 space-y-8">
+                <section>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            Active Habits <span id="habitCount" class="text-sm bg-zinc-800 px-2 py-0.5 rounded-full text-zinc-400">0</span>
+                        </h2>
+                    </div>
+                    <div id="habitsList" class="grid gap-4">
+                        <div id="emptyState" class="text-center py-20 glass rounded-3xl border-dashed border-2 border-zinc-800">
+                            <p class="text-zinc-500">No habits tracked yet. Start your first one today!</p>
+                        </div>
+                    </div>
+                </section>
 
-    document.querySelector('.ai-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter' && this.value.trim()) {
-        const responses = [
-          "Stay consistent. That's all it takes.",
-          "Small wins compound. Keep showing up.",
-          "Don't think. Just do it.",
-          "The streak doesn't negotiate.",
-          "Discipline beats motivation."
+                <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass p-5 rounded-2xl">
+                        <p class="text-zinc-500 text-xs uppercase font-bold tracking-widest mb-1">Total Streaks</p>
+                        <p id="statTotalStreaks" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="glass p-5 rounded-2xl">
+                        <p class="text-zinc-500 text-xs uppercase font-bold tracking-widest mb-1">Today's Rate</p>
+                        <p id="statCompletionRate" class="text-2xl font-bold">0%</p>
+                    </div>
+                    <div class="glass p-5 rounded-2xl">
+                        <p class="text-zinc-500 text-xs uppercase font-bold tracking-widest mb-1">Best Habit</p>
+                        <p id="statBestHabit" class="text-sm font-bold truncate">None</p>
+                    </div>
+                    <div class="glass p-5 rounded-2xl border-violet-500/30">
+                        <p class="text-zinc-500 text-xs uppercase font-bold tracking-widest mb-1">Focus Mins</p>
+                        <p id="statFocusTime" class="text-2xl font-bold">0</p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="lg:col-span-4 space-y-8">
+                <section class="glass p-8 rounded-3xl text-center relative overflow-hidden border-violet-500/20">
+                    <div class="relative z-10">
+                        <div class="flex justify-center gap-2 mb-6">
+                            <button onclick="setTimer(25)" class="px-3 py-1 text-xs rounded-full bg-zinc-800 hover:bg-violet-600 transition-colors">Work</button>
+                            <button onclick="setTimer(5)" class="px-3 py-1 text-xs rounded-full bg-zinc-800 hover:bg-violet-600 transition-colors">Short</button>
+                            <button onclick="setTimer(15)" class="px-3 py-1 text-xs rounded-full bg-zinc-800 hover:bg-violet-600 transition-colors">Long</button>
+                        </div>
+                        <h3 id="timerDisplay" class="text-6xl font-black mb-6 tabular-nums tracking-tight">25:00</h3>
+                        <div class="flex gap-3 justify-center">
+                            <button id="timerBtn" onclick="toggleTimer()" class="w-full py-3 violet-gradient rounded-xl font-bold">Start</button>
+                            <button onclick="resetTimer()" class="px-4 py-3 bg-zinc-800 rounded-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass p-6 rounded-3xl">
+                    <h3 class="font-bold mb-4">Weekly Activity</h3>
+                    <div id="weeklyChart" class="flex items-end justify-between h-24 gap-1">
+                        </div>
+                    <div class="flex justify-between mt-2 text-[10px] text-zinc-500 uppercase font-bold">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="habitModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div class="glass max-w-md w-full p-8 rounded-3xl">
+            <h2 class="text-2xl font-bold mb-6">Create Habit</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-2">Habit Name</label>
+                    <input type="text" id="habitInput" placeholder="e.g. Morning Meditation" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-violet-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-2">Category</label>
+                    <select id="habitCategory" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-violet-500">
+                        <option value="Study">Study</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Wellness">Wellness</option>
+                        <option value="Creative">Creative</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="toggleModal('habitModal', false)" class="flex-1 py-3 bg-zinc-800 rounded-xl font-bold">Cancel</button>
+                    <button onclick="addHabit()" class="flex-1 py-3 violet-gradient rounded-xl font-bold">Save Habit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div class="glass max-w-md w-full p-8 rounded-3xl">
+            <h2 class="text-2xl font-bold mb-6">Settings</h2>
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <span>Sound Notifications</span>
+                    <input type="checkbox" id="soundToggle" checked class="accent-violet-500 h-5 w-5">
+                </div>
+                <div class="pt-4 border-t border-zinc-800">
+                    <button onclick="exportData()" class="w-full py-3 mb-3 bg-zinc-800 rounded-xl text-sm font-bold">Export Data (JSON)</button>
+                    <button onclick="clearAllData()" class="w-full py-3 bg-red-900/20 text-red-500 border border-red-900/50 rounded-xl text-sm font-bold">Reset All App Data</button>
+                </div>
+                <button onclick="toggleModal('settingsModal', false)" class="w-full py-3 bg-zinc-700 rounded-xl font-bold mt-4">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- APP STATE ---
+        let state = {
+            habits: [],
+            stats: { focusSessions: 0, totalFocusMinutes: 0 },
+            settings: { soundEnabled: true, onboardingComplete: false },
+            lastDate: new Date().toLocaleDateString()
+        };
+
+        const QUOTES = [
+            "Discipline is choosing between what you want now and what you want most.",
+            "You do not rise to the level of your goals. You fall to the level of your systems.",
+            "Small habits make a big difference.",
+            "Motivation is what gets you started. Habit is what keeps you going."
         ];
-        document.querySelector('.ai-body').textContent = responses[Math.floor(Math.random() * responses.length)];
-        this.value = "";
-      }
-    });
-  </script>
+
+        // --- CORE LOGIC ---
+        function init() {
+            const savedState = localStorage.getItem('focusFlow_data');
+            if (savedState) {
+                state = JSON.parse(savedState);
+                checkDailyReset();
+            } else {
+                document.getElementById('onboardingModal').classList.remove('hidden');
+            }
+            
+            renderHabits();
+            updateStats();
+            renderWeeklyChart();
+            document.getElementById('quoteDisplay').innerText = `"${QUOTES[Math.floor(Math.random() * QUOTES.length)]}"`;
+        }
+
+        function saveData() {
+            localStorage.setItem('focusFlow_data', JSON.stringify(state));
+            updateStats();
+            renderWeeklyChart();
+        }
+
+        // --- HABIT MANAGEMENT ---
+        function addHabit() {
+            const name = document.getElementById('habitInput').value;
+            const category = document.getElementById('habitCategory').value;
+            
+            if (!name) return;
+
+            const newHabit = {
+                id: Date.now(),
+                name,
+                category,
+                streak: 0,
+                maxStreak: 0,
+                completedToday: false,
+                history: [] // Stores ISO dates of completion
+            };
+
+            state.habits.push(newHabit);
+            saveData();
+            renderHabits();
+            toggleModal('habitModal', false);
+            document.getElementById('habitInput').value = '';
+        }
+
+        function toggleHabit(id) {
+            const habit = state.habits.find(h => h.id === id);
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!habit.completedToday) {
+                habit.completedToday = true;
+                habit.streak++;
+                if (habit.streak > habit.maxStreak) habit.maxStreak = habit.streak;
+                habit.history.push(today);
+                
+                // Visual feedback
+                if ([7, 30, 100].includes(habit.streak)) triggerConfetti();
+                playNotification();
+            } else {
+                habit.completedToday = false;
+                habit.streak = Math.max(0, habit.streak - 1);
+                habit.history = habit.history.filter(d => d !== today);
+            }
+
+            saveData();
+            renderHabits();
+        }
+
+        function deleteHabit(id) {
+            state.habits = state.habits.filter(h => h.id !== id);
+            saveData();
+            renderHabits();
+        }
+
+        // Logic to reset completion status daily and check for broken streaks
+        function checkDailyReset() {
+            const today = new Date().toLocaleDateString();
+            if (state.lastDate !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                state.habits.forEach(habit => {
+                    const didFinishYesterday = habit.history.includes(yesterdayStr);
+                    if (!didFinishYesterday && habit.streak > 0) {
+                        habit.streak = 0; // Reset streak if missed day
+                    }
+                    habit.completedToday = false;
+                });
+                state.lastDate = today;
+                saveData();
+            }
+        }
+
+        // --- UI RENDERING ---
+        function renderHabits() {
+            const list = document.getElementById('habitsList');
+            const empty = document.getElementById('emptyState');
+            
+            list.innerHTML = '';
+            document.getElementById('habitCount').innerText = state.habits.length;
+
+            if (state.habits.length === 0) {
+                list.appendChild(empty);
+                return;
+            }
+
+            state.habits.forEach(habit => {
+                const div = document.createElement('div');
+                div.className = `glass p-5 rounded-2xl flex items-center justify-between card-glow transition-all animate-slide ${habit.completedToday ? 'border-violet-500/50 opacity-80' : ''}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleHabit(${habit.id})" class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${habit.completedToday ? 'bg-violet-500 border-violet-500' : 'border-zinc-700 hover:border-violet-500'}">
+                            ${habit.completedToday ? '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                        </button>
+                        <div>
+                            <h3 class="font-bold ${habit.completedToday ? 'line-through text-zinc-500' : ''}">${habit.name}</h3>
+                            <div class="flex gap-2 items-center">
+                                <span class="text-[10px] uppercase tracking-wider text-violet-400 font-bold">${habit.category}</span>
+                                <span class="text-[10px] text-zinc-500">•</span>
+                                <span class="text-[10px] text-zinc-400 font-medium">🔥 ${habit.streak} day streak</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteHabit(${habit.id})" class="p-2 text-zinc-600 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateStats() {
+            const completedToday = state.habits.filter(h => h.completedToday).length;
+            const rate = state.habits.length ? Math.round((completedToday / state.habits.length) * 100) : 0;
+            const totalStreaks = state.habits.reduce((acc, h) => acc + h.streak, 0);
+            
+            const bestHabit = state.habits.length ? [...state.habits].sort((a,b) => b.maxStreak - a.maxStreak)[0].name : "None";
+
+            document.getElementById('statCompletionRate').innerText = `${rate}%`;
+            document.getElementById('statTotalStreaks').innerText = totalStreaks;
+            document.getElementById('statBestHabit').innerText = bestHabit;
+            document.getElementById('statFocusTime').innerText = state.stats.totalFocusMinutes;
+        }
+
+        function renderWeeklyChart() {
+            const chart = document.getElementById('weeklyChart');
+            chart.innerHTML = '';
+            
+            // Mock visualization of the last 7 days
+            for(let i=0; i<7; i++) {
+                const height = Math.floor(Math.random() * 80) + 20; // Simulated data for demo
+                const bar = document.createElement('div');
+                bar.className = 'flex-1 bg-zinc-800 rounded-t-md hover:bg-violet-500 transition-all cursor-pointer group relative';
+                bar.style.height = `${height}%`;
+                bar.innerHTML = `<div class="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 text-[10px] bg-violet-600 px-1 rounded transition-opacity">${height}%</div>`;
+                chart.appendChild(bar);
+            }
+        }
+
+        // --- POMODORO LOGIC ---
+        let timer;
+        let timeLeft = 1500;
+        let isRunning = false;
+
+        function setTimer(mins) {
+            clearInterval(timer);
+            isRunning = false;
+            timeLeft = mins * 60;
+            updateTimerDisplay();
+            document.getElementById('timerBtn').innerText = 'Start';
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                document.getElementById('timerBtn').innerText = 'Resume';
+            } else {
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        playNotification();
+                        state.stats.totalFocusMinutes += 25; // Logic assumes default session
+                        saveData();
+                    }
+                }, 1000);
+                document.getElementById('timerBtn').innerText = 'Pause';
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            setTimer(25);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // --- UTILS ---
+        function toggleModal(id, show) {
+            document.getElementById(id).classList.toggle('hidden', !show);
+        }
+
+        function closeOnboarding() {
+            state.settings.onboardingComplete = true;
+            saveData();
+            toggleModal('onboardingModal', false);
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#8b5cf6', '#6d28d9', '#ffffff']
+            });
+        }
+
+        function playNotification() {
+            if (state.settings.soundEnabled) {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                audio.volume = 0.2;
+                audio.play();
+            }
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "focus_flow_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function clearAllData() {
+            if(confirm("Are you absolutely sure? This will erase all habits and streaks forever.")) {
+                localStorage.removeItem('focusFlow_data');
+                location.reload();
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('soundToggle').checked = state.settings.soundEnabled;
+            toggleModal('settingsModal', true);
+        }
+
+        // --- LISTENERS ---
+        document.getElementById('soundToggle').addEventListener('change', (e) => {
+            state.settings.soundEnabled = e.target.checked;
+            saveData();
+        });
+
+        // Bootstrap App
+        init();
+
+    </script>
 </body>
 </html>
