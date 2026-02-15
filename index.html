@@ -294,6 +294,7 @@
                 habit.streak++;
                 if (habit.streak > habit.maxStreak) habit.maxStreak = habit.streak;
                 habit.history.push(today);
+                awardXP(10); // Award 10 XP for completing a habit
                 
                 // Visual feedback
                 if ([7, 30, 100].includes(habit.streak)) triggerConfetti();
