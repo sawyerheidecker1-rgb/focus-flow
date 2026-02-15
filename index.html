@@ -169,6 +169,7 @@
             <h2 class="text-2xl font-bold mb-6">Create Habit</h2>
             <div class="space-y-4">
                 <div>
+                    <button onclick="showTemplates()" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm text-zinc-300 transition-colors mb-4">📚 Use Template Pack</button>
                     <label class="block text-sm text-zinc-400 mb-2">Habit Name</label>
                     <input type="text" id="habitInput" placeholder="e.g. Morning Meditation" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-violet-500">
                 </div>
@@ -189,6 +190,32 @@
             </div>
         </div>
     </div>
+
+        <!-- Templates Modal -->
+        <div id="templatesModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div class="glass max-w-2xl w-full p-8 rounded-3xl">
+                <h2 class="text-2xl font-bold mb-6">📚 Choose a Template Pack</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button onclick="applyTemplate('college')" class="p-4 bg-zinc-800/50 hover:bg-violet-600/20 border border-violet-500/30 rounded-xl text-left transition-all">
+                        <div class="text-lg font-bold mb-2">🎓 College Grind</div>
+                        <div class="text-sm text-zinc-400">Study 2hrs, Exercise, Meal prep, Sleep by 11 PM</div>
+                    </button>
+                    <button onclick="applyTemplate('exam')" class="p-4 bg-zinc-800/50 hover:bg-violet-600/20 border border-violet-500/30 rounded-xl text-left transition-all">
+                        <div class="text-lg font-bold mb-2">📝 Exam Warrior</div>
+                        <div class="text-sm text-zinc-400">Study session, Practice problems, Review notes, 8hrs sleep</div>
+                    </button>
+                    <button onclick="applyTemplate('wellness')" class="p-4 bg-zinc-800/50 hover:bg-violet-600/20 border border-violet-500/30 rounded-xl text-left transition-all">
+                        <div class="text-lg font-bold mb-2">🧘 Wellness Focus</div>
+                        <div class="text-sm text-zinc-400">Meditate, Exercise, Hydrate, Journal, 7+ hrs sleep</div>
+                    </button>
+                    <button onclick="applyTemplate('hustle')" class="p-4 bg-zinc-800/50 hover:bg-violet-600/20 border border-violet-500/30 rounded-xl text-left transition-all">
+                        <div class="text-lg font-bold mb-2">💼 Side Hustle</div>
+                        <div class="text-sm text-zinc-400">Main work, Skill learning, Networking, Content creation</div>
+                    </button>
+                </div>
+                <button onclick="toggleModal('templatesModal', false)" class="w-full py-3 bg-zinc-800 rounded-xl font-bold">Cancel</button>
+            </div>
+        </div>
 
     <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
         <div class="glass max-w-md w-full p-8 rounded-3xl">
@@ -396,6 +423,68 @@
             updateStats();
             renderWeeklyChart();
         }
+
+
+    // --- HABIT TEMPLATES ---
+    const HABIT_TEMPLATES = {
+        college: [
+            { name: 'Study for 2 hours', category: 'Study' },
+            { name: 'Exercise 30 mins', category: 'Fitness' },
+            { name: 'Meal prep', category: 'Wellness' },
+            { name: 'Sleep by 11 PM', category: 'Wellness' }
+        ],
+        exam: [
+            { name: 'Study session', category: 'Study' },
+            { name: 'Practice problems', category: 'Study' },
+            { name: 'Review notes', category: 'Study' },
+            { name: '8 hours sleep', category: 'Wellness' }
+        ],
+        wellness: [
+            { name: 'Meditate 10 mins', category: 'Mindfulness' },
+            { name: 'Exercise 30 mins', category: 'Fitness' },
+            { name: 'Drink 8 glasses water', category: 'Wellness' },
+            { name: 'Journal', category: 'Mindfulness' },
+            { name: '7+ hours sleep', category: 'Wellness' }
+        ],
+        hustle: [
+            { name: 'Main goal work 2hrs', category: 'Creative' },
+            { name: 'Skill learning 1hr', category: 'Study' },
+            { name: 'Networking', category: 'Other' },
+            { name: 'Content creation', category: 'Creative' }
+        ]
+    };
+
+    function showTemplates() {
+        toggleModal('habitModal', false);
+        toggleModal('templatesModal', true);
+    }
+
+    function applyTemplate(templateName) {
+        const template = HABIT_TEMPLATES[templateName];
+        if (!template) return;
+        
+        template.forEach(habitData => {
+            const habit = {
+                id: Date.now() + Math.random(),
+                name: habitData.name,
+                category: habitData.category,
+                streak: 0,
+                maxStreak: 0,
+                completedToday: false,
+                history: []
+            };
+            state.habits.push(habit);
+        });
+        
+        toggleModal('templatesModal', false);
+        saveData();
+        renderHabits();
+        confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
 
         // --- HABIT MANAGEMENT ---
         function addHabit() {
