@@ -6,7 +6,23 @@
     <title>Focus-Flow | Productive Noir</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link hr
+                
+        /* Loot Box Styles */
+        .loot-box-btn { font-size: 1.5rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .loot-box-container { display: flex; justify-content: center; align-items: center; height: 200px; }
+        .loot-box { position: relative; width: 150px; height: 150px; cursor: pointer; transition: all 0.5s; }
+        .loot-box:hover { transform: scale(1.1) rotate(5deg); }
+        .loot-box-lid { position: absolute; top: 0; width: 100%; height: 40px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); border-radius: 10px 10px 0 0; }
+        .loot-box-body { width: 100%; height: 110px; background: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%); border-radius: 0 0 10px 10px; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white; }
+        .loot-box.opening .loot-box-lid { animation: openLid 1s forwards; }
+        @keyframes openLid { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-60px) rotate(-45deg); } 100% { transform: translateY(-80px) rotate(-60deg); opacity: 0; } }
+        .reward-reveal { animation: revealReward 0.5s ease-out; text-align: center; }
+        .reward-icon { font-size: 4rem; margin-bottom: 10px; animation: bounce 0.5s; }
+        .reward-text { font-size: 1.2rem; font-weight: bold; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes revealReward { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }ef="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #09090b;
@@ -276,6 +292,7 @@
             updateStats();
             renderWeeklyChart();
             document.getElementById('quoteDisplay').innerText = `"${QUOTES[Math.floor(Math.random() * QUOTES.length)]}"`;
+                    addLootBoxButton();
         }
 
 
@@ -748,6 +765,91 @@
         });
 
         // Bootstrap App
+
+                // --- LOOT BOX SYSTEM ---
+        function openLootBox() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content loot-box-modal">
+                    <h2>🎁 Mystery Reward Box</h2>
+                    <div class="loot-box-container">
+                        <div class="loot-box" id="lootBox">
+                            <div class="loot-box-lid"></div>
+                            <div class="loot-box-body">?</div>
+                        </div>
+                    </div>
+                    <p class="loot-text">Click to open your mystery reward!</p>
+                    <button class="action-btn" onclick="revealLoot()" style="background: var(--electric-violet); color: white; margin-top: 20px;">Open Box</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function revealLoot() {
+            const lootBox = document.getElementById('lootBox');
+            lootBox.classList.add('opening');
+            
+            setTimeout(() => {
+                const rewards = [
+                    { type: 'coins', amount: 50, icon: '🪙', color: '#FFD700' },
+                    { type: 'coins', amount: 100, icon: '🪙', color: '#FFD700' },
+                    { type: 'xp', amount: 200, icon: '⭐', color: '#8b5cf6' },
+                    { type: 'streak_freeze', amount: 1, icon: '❄️', color: '#60a5fa' },
+                    { type: 'double_xp', amount: 1, icon: '⚡', color: '#f59e0b' },
+                ];
+                
+                const reward = rewards[Math.floor(Math.random() * rewards.length)];
+                
+                lootBox.innerHTML = `
+                    <div class="reward-reveal" style="color: ${reward.color};">
+                        <div class="reward-icon">${reward.icon}</div>
+                        <div class="reward-text">
+                            ${reward.amount} ${reward.type.replace('_', ' ').toUpperCase()}
+                        </div>
+                    </div>
+                `;
+                
+                // Apply reward
+                if(reward.type === 'coins') {
+                    state.coins += reward.amount;
+                } else if(reward.type === 'xp') {
+                    state.xp += reward.amount;
+                } else if(reward.type === 'streak_freeze') {
+                    state.powerups = state.powerups || {};
+                    state.powerups.streakFreeze = (state.powerups.streakFreeze || 0) + 1;
+                } else if(reward.type === 'double_xp') {
+                    state.powerups = state.powerups || {};
+                    state.powerups.doubleXP = (state.powerups.doubleXP || 0) + 1;
+                }
+                
+                saveData();
+                updateUI();
+            }, 1000);
+        }
+
+        // Add loot box button to header
+        function addLootBoxButton() {
+            const coinsDisplay = document.querySelector('.coins-display');
+            if(coinsDisplay) {
+                const lootBtn = document.createElement('button');
+                lootBtn.className = 'icon-btn loot-box-btn';
+                lootBtn.innerHTML = '🎁';
+                lootBtn.title = 'Open Mystery Box (Cost: 50 coins)';
+                lootBtn.onclick = () => {
+                    if(state.coins >= 50) {
+                        state.coins -= 50;
+                        saveData();
+                        updateUI();
+                        openLootBox();
+                    } else {
+                        alert('Need 50 coins to open a mystery box!');
+                    }
+                };
+                coinsDisplay.parentElement.insertBefore(lootBtn, coinsDisplay.nextSibling);
+            }
+        }
         init();
 
     </script>
