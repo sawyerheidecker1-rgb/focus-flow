@@ -80,6 +80,53 @@
         .claim-btn:hover { background: #7c3aed; transform: scale(1.05); }
         .reward-text { color: #fbbf24; font-weight: bold; }
         .claimed-text { color: #10b981; font-weight: bold; }
+                
+        /* Social & Leaderboard Styles */
+        .leaderboard-modal { max-width: 600px !important; }
+        .leaderboard-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .tab-btn { background: var(--card-dark); color: white; border: 2px solid #374151; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .tab-btn.active, .tab-btn:hover { border-color: var(--electric-violet); background: rgba(139, 92, 246, 0.2); }
+        .leaderboard-list { max-height: 400px; overflow-y: auto; }
+        .leaderboard-row { background: var(--card-dark); border: 2px solid #374151; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; transition: all 0.3s; }
+        .leaderboard-row.user-row { border-color: var(--electric-violet); background: rgba(139, 92, 246, 0.1); }
+        .leaderboard-row:hover { transform: translateX(5px); border-color: var(--electric-violet); }
+        .leaderboard-row .rank { font-size: 1.5rem; font-weight: bold; color: white; min-width: 50px; text-align: center; }
+        .leaderboard-row .rank.top-rank { font-size: 2rem; }
+        .leaderboard-row .user-info { flex: 1; display: flex; align-items: center; gap: 10px; }
+        .leaderboard-row .country { font-size: 1.5rem; }
+        .leaderboard-row .username { color: white; font-weight: bold; }
+        .leaderboard-row .user-stats { display: flex; gap: 15px; font-size: 0.9rem; }
+        .leaderboard-row .level { color: var(--electric-violet); font-weight: bold; }
+        .leaderboard-row .xp { color: #10b981; }
+        .leaderboard-row .streak { color: #f59e0b; }
+        
+        .share-modal { max-width: 500px !important; }
+        .share-text { text-align: center; padding: 15px; background: var(--card-dark); border-radius: 10px; margin: 15px 0; color: white; }
+        .share-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
+        .share-btn { background: var(--card-dark); color: white; border: 2px solid #374151; padding: 15px; border-radius: 12px; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s; cursor: pointer; }
+        .share-btn:hover { border-color: var(--electric-violet); transform: scale(1.05); }
+        .share-btn.twitter:hover { border-color: #1DA1F2; }
+        .share-btn.facebook:hover { border-color: #4267B2; }
+        .share-btn.whatsapp:hover { border-color: #25D366; }
+        .share-btn.line:hover { border-color: #00B900; }
+        .share-btn.wechat:hover { border-color: #09B83E; }
+        .share-btn.copy:hover { border-color: #fbbf24; }
+        .share-icon { font-size: 2rem; }
+        
+        .referral-modal { max-width: 550px !important; }
+        .referral-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+        .stat-card { background: var(--card-dark); border: 2px solid var(--electric-violet); border-radius: 15px; padding: 20px; text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--electric-violet); }
+        .stat-label { color: #9ca3af; margin-top: 5px; }
+        .referral-benefits { background: rgba(139, 92, 246, 0.1); border-radius: 10px; padding: 15px; margin: 15px 0; }
+        .benefit-item { color: white; padding: 8px 0; }
+        .referral-link-container { display: flex; gap: 10px; margin: 15px 0; }
+        .ref-link-input { flex: 1; padding: 12px; background: var(--card-dark); border: 2px solid #374151; border-radius: 8px; color: white; font-size: 0.9rem; }
+        .copy-link-btn { background: var(--electric-violet); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .copy-link-btn:hover { background: #7c3aed; transform: scale(1.05); }
+        .social-share-row { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+        .mini-share-btn { background: var(--card-dark); border: 2px solid #374151; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; }
+        .mini-share-btn:hover { border-color: var(--electric-violet); transform: scale(1.1); }
     <style>
         :root {
             --bg-dark: #09090b;
