@@ -23,6 +23,25 @@
         .reward-text { font-size: 1.2rem; font-weight: bold; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         @keyframes revealReward { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }ef="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+            
+        /* Badges System Styles */
+        .badges-modal { max-width: 700px !important; }
+        .badges-count { text-align: center; color: var(--electric-violet); font-size: 1.1rem; margin: -10px 0 20px 0; }
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; }
+        .badge-card { background: var(--card-dark); border: 2px solid var(--card-dark); border-radius: 15px; padding: 20px; text-align: center; transition: all 0.3s; }
+        .badge-card.earned { border-color: var(--electric-violet); box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .badge-card.locked { opacity: 0.5; filter: grayscale(1); }
+        .badge-card:hover { transform: translateY(-5px); }
+        .badge-icon { font-size: 3rem; margin-bottom: 10px; }
+        .badge-name { font-weight: bold; color: white; margin: 5px 0; }
+        .badge-desc { font-size: 0.85rem; color: #9ca3af; }
+        .badge-notification { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10000; transform: translateX(400px); transition: transform 0.5s; max-width: 350px; }
+        .badge-notification.show { transform: translateX(0); }
+        .badge-notif-content { display: flex; align-items: center; gap: 15px; }
+        .badge-icon-large { font-size: 4rem; }
+        .badge-details h3 { margin: 0 0 5px 0; color: white; }
+        .badge-details .badge-name { color: #fbbf24; font-size: 1.1rem; }
+        .badge-details .badge-desc { color: #e5e7eb; font-size: 0.9rem; margin: 5px 0 0 0; }
     <style>
         :root {
             --bg-dark: #09090b;
@@ -849,6 +868,99 @@
                 };
                 coinsDisplay.parentElement.insertBefore(lootBtn, coinsDisplay.nextSibling);
             }
+
+                    // --- BADGES & ACHIEVEMENTS SYSTEM ---
+        const BADGES = [
+            { id: 'first_habit', name: 'First Step', icon: '🌟', desc: 'Create your first habit', condition: (s) => s.habits && s.habits.length >= 1 },
+            { id: 'week_warrior', name: 'Week Warrior', icon: '👊', desc: 'Maintain a 7-day streak', condition: (s) => s.currentStreak >= 7 },
+            { id: 'focus_master', name: 'Focus Master', icon: '🧠', desc: 'Complete 100 focus sessions', condition: (s) => s.totalFocusSessions >= 100 },
+            { id: 'level_5', name: 'Rising Star', icon: '⭐', desc: 'Reach level 5', condition: (s) => s.level >= 5 },
+            { id: 'coins_collector', name: 'Coin Collector', icon: '🪙', desc: 'Earn 500 coins', condition: (s) => s.totalCoinsEarned >= 500 },
+            { id: 'perfect_day', name: 'Perfect Day', icon: '🎉', desc: 'Complete all habits in one day', condition: (s) => s.todaysRate === 100 && s.habits && s.habits.length > 0 },
+            { id: 'early_bird', name: 'Early Bird', icon: '🐦', desc: 'Complete a habit before 9 AM', condition: (s) => s.earlyBirdAchieved },
+            { id: 'night_owl', name: 'Night Owl', icon: '🦉', desc: 'Complete a habit after 10 PM', condition: (s) => s.nightOwlAchieved },
+            { id: 'streak_legend', name: 'Streak Legend', icon: '🔥', desc: 'Maintain a 30-day streak', condition: (s) => s.currentStreak >= 30 },
+            { id: 'diamond_level', name: 'Diamond Rank', icon: '💎', desc: 'Reach Diamond level (Level 5)', condition: (s) => s.level >= 5 },
+        ];
+
+        function checkBadges() {
+            if(!state.badges) state.badges = [];
+            if(!state.totalCoinsEarned) state.totalCoinsEarned = state.coins || 0;
+            if(!state.totalFocusSessions) state.totalFocusSessions = 0;
+            
+            BADGES.forEach(badge => {
+                if(!state.badges.includes(badge.id) && badge.condition(state)) {
+                    state.badges.push(badge.id);
+                    showBadgeNotification(badge);
+                    saveData();
+                }
+            });
+        }
+
+        function showBadgeNotification(badge) {
+            const notif = document.createElement('div');
+            notif.className = 'badge-notification';
+            notif.innerHTML = `
+                <div class="badge-notif-content">
+                    <div class="badge-icon-large">${badge.icon}</div>
+                    <div class="badge-details">
+                        <h3>Badge Unlocked!</h3>
+                        <p class="badge-name">${badge.name}</p>
+                        <p class="badge-desc">${badge.desc}</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.classList.add('show'), 10);
+            setTimeout(() => {
+                notif.classList.remove('show');
+                setTimeout(() => notif.remove(), 500);
+            }, 4000);
+        }
+
+        function openBadgesGallery() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            
+            const earned = state.badges || [];
+            const badgesHTML = BADGES.map(badge => {
+                const isEarned = earned.includes(badge.id);
+                return `
+                    <div class="badge-card ${isEarned ? 'earned' : 'locked'}">
+                        <div class="badge-icon">${isEarned ? badge.icon : '🔒'}</div>
+                        <div class="badge-name">${badge.name}</div>
+                        <div class="badge-desc">${isEarned ? badge.desc : '???'}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            modal.innerHTML = `
+                <div class="modal-content badges-modal">
+                    <h2>🏆 Achievements</h2>
+                    <p class="badges-count">Unlocked: ${earned.length} / ${BADGES.length}</p>
+                    <div class="badges-grid">
+                        ${badgesHTML}
+                    </div>
+                    <button class="action-btn" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function addBadgesButton() {
+            const settingsBtn = document.querySelector('.icon-btn');
+            if(settingsBtn) {
+                const badgesBtn = document.createElement('button');
+                badgesBtn.className = 'icon-btn badges-btn';
+                badgesBtn.innerHTML = '🏆';
+                badgesBtn.title = 'View Badges';
+                badgesBtn.onclick = openBadgesGallery;
+                settingsBtn.parentElement.insertBefore(badgesBtn, settingsBtn.nextSibling);
+            }
+                    addBadgesButton();
+                    checkBadges();
+        }
         }
         init();
 
