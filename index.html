@@ -42,6 +42,24 @@
         .badge-details h3 { margin: 0 0 5px 0; color: white; }
         .badge-details .badge-name { color: #fbbf24; font-size: 1.1rem; }
         .badge-details .badge-desc { color: #e5e7eb; font-size: 0.9rem; margin: 5px 0 0 0; }
+            
+        /* Power-Ups Store Styles */
+        .store-modal { max-width: 600px !important; }
+        .coin-balance { text-align: center; font-size: 1.3rem; color: var(--electric-violet); margin: -5px 0 20px 0; }
+        .store-section { margin: 20px 0; }
+        .store-section h3 { color: white; margin-bottom: 15px; }
+        .powerups-grid { display: grid; gap: 10px; }
+        .powerup-card { background: var(--card-dark); border: 2px solid #374151; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; transition: all 0.3s; }
+        .powerup-card:hover { border-color: var(--electric-violet); transform: translateX(5px); }
+        .powerup-icon { font-size: 2.5rem; }
+        .powerup-info { flex: 1; }
+        .powerup-name { font-weight: bold; color: white; margin-bottom: 5px; }
+        .powerup-desc { font-size: 0.9rem; color: #9ca3af; }
+        .buy-btn { background: var(--electric-violet); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .buy-btn:hover { background: #7c3aed; transform: scale(1.05); }
+        .inventory-list { background: var(--bg-dark); border-radius: 10px; padding: 15px; }
+        .inventory-item { color: white; padding: 8px; margin: 5px 0; background: var(--card-dark); border-radius: 8px; }
+        .no-items { color: #6b7280; text-align: center; padding: 20px; }
     <style>
         :root {
             --bg-dark: #09090b;
@@ -958,7 +976,87 @@
                 badgesBtn.onclick = openBadgesGallery;
                 settingsBtn.parentElement.insertBefore(badgesBtn, settingsBtn.nextSibling);
             }
+
+                    // --- POWER-UPS STORE SYSTEM ---
+        const POWER_UPS = [
+            { id: 'streak_freeze', name: 'Streak Freeze', icon: '❄️', price: 150, desc: 'Protect your streak for 1 day' },
+            { id: 'double_xp', name: 'Double XP', icon: '⚡', price: 100, desc: 'Earn 2x XP for 1 hour' },
+            { id: 'coin_boost', name: 'Coin Boost', icon: '💰', price: 80, desc: 'Earn 2x coins for 1 hour' },
+            { id: 'time_extender', name: 'Time Extender', icon: '⏰', price: 120, desc: 'Add 10 minutes to a session' },
+            { id: 'challenge_skip', name: 'Challenge Skip', icon: '⏭️', price: 200, desc: 'Skip one challenge' },
+        ];
+
+        function openPowerUpsStore() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            
+            const powerUpsHTML = POWER_UPS.map(powerup => `
+                <div class="powerup-card">
+                    <div class="powerup-icon">${powerup.icon}</div>
+                    <div class="powerup-info">
+                        <div class="powerup-name">${powerup.name}</div>
+                        <div class="powerup-desc">${powerup.desc}</div>
+                    </div>
+                    <button class="buy-btn" onclick="buyPowerUp('${powerup.id}', ${powerup.price})">
+                        ${powerup.price} 🪙
+                    </button>
+                </div>
+            `).join('');
+            
+            const owned = state.powerups || {};
+            const inventoryHTML = Object.entries(owned)
+                .filter(([k, v]) => v > 0)
+                .map(([key, count]) => {
+                    const pu = POWER_UPS.find(p => p.id === key);
+                    return pu ? `<div class="inventory-item">${pu.icon} ${pu.name}: x${count}</div>` : '';
+                }).join('') || '<p class="no-items">No power-ups owned yet!</p>';
+            
+            modal.innerHTML = `
+                <div class="modal-content store-modal">
+                    <h2>🏪 Power-Ups Store</h2>
+                    <p class="coin-balance">Your Coins: ${state.coins} 🪙</p>
+                    <div class="store-section">
+                        <h3>Available Power-Ups</h3>
+                        <div class="powerups-grid">${powerUpsHTML}</div>
+                    </div>
+                    <div class="store-section">
+                        <h3>Your Inventory</h3>
+                        <div class="inventory-list">${inventoryHTML}</div>
+                    </div>
+                    <button class="action-btn" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function buyPowerUp(id, price) {
+            if(state.coins >= price) {
+                state.coins -= price;
+                if(!state.powerups) state.powerups = {};
+                state.powerups[id] = (state.powerups[id] || 0) + 1;
+                saveData();
+                document.querySelector('.modal').remove();
+                openPowerUpsStore();
+                showNotification(`Purchased ${POWER_UPS.find(p => p.id === id).name}!`);
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
+        function addStoreButton() {
+            const header = document.querySelector('header .stats');
+            if(header) {
+                const storeBtn = document.createElement('button');
+                storeBtn.className = 'icon-btn store-btn';
+                storeBtn.innerHTML = '🏪';
+                storeBtn.title = 'Power-Ups Store';
+                storeBtn.onclick = openPowerUpsStore;
+                header.appendChild(storeBtn);
+            }
+        }
                     addBadgesButton();
+                    addStoreButton();
                     checkBadges();
         }
         }
