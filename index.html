@@ -1245,7 +1245,12 @@
             document.body.appendChild(modal);
             setTimeout(() => modal.classList.add('active'), 10);
         }
+        // Placeholder functions that are called but don't exist yet
+        function addBadgesButton() { console.log('Badges button placeholder'); }
+        function addStoreButton() { console.log('Store button placeholder'); }
+        function checkBadges() { console.log('Check badges placeholder'); }
 
+            
         function claimReward(challengeId) {
             const challenge = CHALLENGES.find(c => c.id === challengeId);
             if(challenge && state.challenges[challengeId].completed && !state.challenges[challengeId].claimed) {
