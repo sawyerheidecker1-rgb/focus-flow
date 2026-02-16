@@ -60,6 +60,26 @@
         .inventory-list { background: var(--bg-dark); border-radius: 10px; padding: 15px; }
         .inventory-item { color: white; padding: 8px; margin: 5px 0; background: var(--card-dark); border-radius: 8px; }
         .no-items { color: #6b7280; text-align: center; padding: 20px; }
+            
+        /* Challenges System Styles */
+        .challenges-modal { max-width: 650px !important; }
+        .challenges-section { margin: 20px 0; }
+        .challenges-section h3 { color: white; margin-bottom: 15px; }
+        .challenge-card { background: var(--card-dark); border: 2px solid #374151; border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: all 0.3s; }
+        .challenge-card.completed { border-color: var(--electric-violet); background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); }
+        .challenge-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .challenge-badge { font-size: 2rem; }
+        .challenge-name { font-weight: bold; color: white; }
+        .challenge-desc { font-size: 0.9rem; color: #9ca3af; }
+        .challenge-progress { margin: 10px 0; }
+        .progress-bar { background: var(--bg-dark); height: 8px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, var(--electric-violet), #6366f1); height: 100%; transition: width 0.5s; }
+        .progress-text { font-size: 0.85rem; color: #9ca3af; margin-top: 5px; display: inline-block; }
+        .challenge-reward { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .claim-btn { background: var(--electric-violet); color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .claim-btn:hover { background: #7c3aed; transform: scale(1.05); }
+        .reward-text { color: #fbbf24; font-weight: bold; }
+        .claimed-text { color: #10b981; font-weight: bold; }
     <style>
         :root {
             --bg-dark: #09090b;
@@ -1053,6 +1073,142 @@
                 storeBtn.title = 'Power-Ups Store';
                 storeBtn.onclick = openPowerUpsStore;
                 header.appendChild(storeBtn);
+            }
+        }
+
+                    // --- DAILY/WEEKLY CHALLENGES SYSTEM ---
+        const CHALLENGES = [
+            { id: 'daily_3_habits', name: 'Triple Threat', desc: 'Complete 3 habits today', reward: { coins: 30, xp: 50 }, type: 'daily', target: 3 },
+            { id: 'daily_focus_60', name: 'Power Hour', desc: 'Focus for 60 minutes', reward: { coins: 50, xp: 100 }, type: 'daily', target: 60 },
+            { id: 'weekly_streak_7', name: 'Week Warrior', desc: 'Maintain 7-day streak', reward: { coins: 200, xp: 500 }, type: 'weekly', target: 7 },
+            { id: 'weekly_15_habits', name: 'Habit Master', desc: 'Complete 15 habits this week', reward: { coins: 150, xp: 300 }, type: 'weekly', target: 15 },
+        ];
+
+        function initChallenges() {
+            if(!state.challenges) {
+                state.challenges = {};
+                CHALLENGES.forEach(c => {
+                    state.challenges[c.id] = { progress: 0, completed: false, claimed: false };
+                });
+            }
+            // Reset daily challenges
+            const today = new Date().toDateString();
+            if(state.lastChallengeReset !== today) {
+                CHALLENGES.filter(c => c.type === 'daily').forEach(c => {
+                    state.challenges[c.id] = { progress: 0, completed: false, claimed: false };
+                });
+                state.lastChallengeReset = today;
+                saveData();
+            }
+        }
+
+        function updateChallengeProgress(type, amount) {
+            CHALLENGES.forEach(challenge => {
+                const progress = state.challenges[challenge.id];
+                if(!progress.completed) {
+                    if(type === 'habit') progress.progress += amount;
+                    else if(type === 'focus') progress.progress += amount;
+                    else if(type === 'streak' && state.currentStreak >= challenge.target) {
+                        progress.progress = challenge.target;
+                    }
+                    
+                    if(progress.progress >= challenge.target) {
+                        progress.completed = true;
+                        showNotification(`Challenge Complete: ${challenge.name}!`);
+                    }
+                }
+            });
+            saveData();
+        }
+
+        function openChallenges() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            
+            const dailyChallenges = CHALLENGES.filter(c => c.type === 'daily').map(c => {
+                const progress = state.challenges[c.id];
+                const percent = Math.min((progress.progress / c.target) * 100, 100);
+                return `
+                    <div class="challenge-card ${progress.completed ? 'completed' : ''}">
+                        <div class="challenge-header">
+                            <span class="challenge-badge">🎯</span>
+                            <div>
+                                <div class="challenge-name">${c.name}</div>
+                                <div class="challenge-desc">${c.desc}</div>
+                            </div>
+                        </div>
+                        <div class="challenge-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="progress-text">${progress.progress}/${c.target}</span>
+                        </div>
+                        <div class="challenge-reward">
+                            ${progress.completed && !progress.claimed ? 
+                                `<button class="claim-btn" onclick="claimReward('${c.id}')">Claim: ${c.reward.coins}🪙 ${c.reward.xp}XP</button>` :
+                                progress.claimed ? '<span class="claimed-text">✅ Claimed</span>' :
+                                `<span class="reward-text">${c.reward.coins}🪙 ${c.reward.xp}XP</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const weeklyChallenges = CHALLENGES.filter(c => c.type === 'weekly').map(c => {
+                const progress = state.challenges[c.id];
+                const percent = Math.min((progress.progress / c.target) * 100, 100);
+                return `
+                    <div class="challenge-card ${progress.completed ? 'completed' : ''}">
+                        <div class="challenge-header">
+                            <span class="challenge-badge">🏆</span>
+                            <div>
+                                <div class="challenge-name">${c.name}</div>
+                                <div class="challenge-desc">${c.desc}</div>
+                            </div>
+                        </div>
+                        <div class="challenge-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="progress-text">${progress.progress}/${c.target}</span>
+                        </div>
+                        <div class="challenge-reward">
+                            ${progress.completed && !progress.claimed ? 
+                                `<button class="claim-btn" onclick="claimReward('${c.id}')">Claim: ${c.reward.coins}🪙 ${c.reward.xp}XP</button>` :
+                                progress.claimed ? '<span class="claimed-text">✅ Claimed</span>' :
+                                `<span class="reward-text">${c.reward.coins}🪙 ${c.reward.xp}XP</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            modal.innerHTML = `
+                <div class="modal-content challenges-modal">
+                    <h2>🎯 Challenges</h2>
+                    <div class="challenges-section">
+                        <h3>🌅 Daily Challenges</h3>
+                        ${dailyChallenges}
+                    </div>
+                    <div class="challenges-section">
+                        <h3>📅 Weekly Challenges</h3>
+                        ${weeklyChallenges}
+                    </div>
+                    <button class="action-btn" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function claimReward(challengeId) {
+            const challenge = CHALLENGES.find(c => c.id === challengeId);
+            if(challenge && state.challenges[challengeId].completed && !state.challenges[challengeId].claimed) {
+                state.coins += challenge.reward.coins;
+                state.xp += challenge.reward.xp;
+                state.challenges[challengeId].claimed = true;
+                saveData();
+                updateUI();
+                document.querySelector('.modal').remove();
+                openChallenges();
             }
         }
                     addBadgesButton();
